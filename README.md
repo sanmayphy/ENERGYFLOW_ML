@@ -1,6 +1,6 @@
 # Particle Flow alternatives using Machine Learning
 
-**Checkout the package**
+**Checkout the package** <br/>
 git clone https://github.com/sanmayphy/ENERGYFLOW_ML.git
 
 The tasks are defined at __https://docs.google.com/document/d/1DnOqVxdA-5WjEkjYZtV8TW40YKIukPSwsyMnizDWnbE/edit__ 
