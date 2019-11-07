@@ -117,6 +117,7 @@ with h5py.File('Outfile_CellInformation.h5', 'w') as f:
     f.create_dataset('Trk_Theta', data=Trk_Theta)
     f.create_dataset('Trk_Phi', data=Trk_Phi)
     f.create_dataset('Smeared_Track_Energy', data=Track_Energy)
+    f.create_dataset('Track_Image', data=Track_Layer)
 
 print('Exiting ... Bye!')
 # --- end of file ---- #
