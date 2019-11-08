@@ -1,0 +1,11 @@
+data/
+.ipynb_checkpoints
+.DS_Store
+bin/
+build/
+__pycache__/
+*.root
+*.txt
+*.pt
+*.h5
+*.pdf
