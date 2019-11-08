@@ -34,6 +34,7 @@ for event_i in range(n_events):
 		#pick some random fraction between 0,1
 		output_i = np.random.rand(shape_i[0],shape_i[1],shape_i[2])
 
+		input_i[input_i < 0] = 0
 		#get the output in terms of energy out of the total
 		output_i = input_i*output_i
 
