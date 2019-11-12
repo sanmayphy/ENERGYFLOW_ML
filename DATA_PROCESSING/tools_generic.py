@@ -60,8 +60,9 @@ def Proto(sedS,sedN,sedP):
      cY  = cell[2]
      proto.append(cell)
      #define the one close to it
-     cell_proto.append([lay+1,cX,cY])
-     cell_proto.append([lay-1,cX,cY])
+     #need to add new ones
+     if lay != 5: cell_proto.append([lay+1,cX,cY])
+     if lay 1= 0: cell_proto.append([lay-1,cX,cY])
      cell_proto.append([lay,cX+1,cY])
      cell_proto.append([lay,cX-1,cY])
      cell_proto.append([lay,cX,cY+1])
@@ -216,6 +217,6 @@ def Assign_Topo(Proto):
        
 
     out_imagef = [out_image1,out_image2,out_image3,out_image4,out_image5,out_image6]
-
-    return np.stack(out_imagef,axis=0)
+    return out_imagef
+    #return np.stack(out_imagef,axis=0)
 
