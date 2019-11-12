@@ -17,7 +17,8 @@ import math
 
 import uproot 
 
-from GlobalFunctions import MakeTrackLayer, MakeRealResolution, MakeFraction, MakeEnergyImage
+from GlobalFunctions import MakeTrackLayer, MakeRealResolution, MakeFraction, MakeEnergyImage, \
+     MakeTruthTrajectory
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--nevent", help="total number of events in the file",
@@ -35,7 +36,7 @@ f = uproot.open(fileName)
 
 print(f['EventTree'].keys() )
 
-entrystart = 160000 # the test image indices will start from this number. warning!! hard coded
+entrystart = 0 # the test image indices will start from this number. warning!! hard coded
 
 # ------------ read the calorimeter + track variables from the input file --------- #
 Layer = f['EventTree'].array('cell_Energy', entrystart = entrystart, entrystop = entrystart+NEvent) # -- total -- #
@@ -45,9 +46,24 @@ Noise_Layer = f['EventTree'].array('Noise_cell_Energy', entrystart = entrystart,
 
 Trk_X_pos = f['EventTree'].array('Trk_X_pos', entrystart = entrystart, entrystop = entrystart+NEvent)
 Trk_Y_pos = f['EventTree'].array('Trk_Y_pos', entrystart = entrystart, entrystop = entrystart+NEvent)
+
+Trk_X_indx = f['EventTree'].array('Trk_X_indx', entrystart = entrystart, entrystop = entrystart+NEvent)
+Trk_Y_indx = f['EventTree'].array('Trk_Y_indx', entrystart = entrystart, entrystop = entrystart+NEvent)
+
 Track_Energy = f['EventTree'].array('Smeared_Ch_Energy', entrystart = entrystart, entrystop = entrystart+NEvent)
 Trk_Theta = f['EventTree'].array('Trk_Theta', entrystart = entrystart, entrystop = entrystart+NEvent)
 Trk_Phi   = f['EventTree'].array('Trk_Phi'  , entrystart = entrystart, entrystop = entrystart+NEvent)
+
+Pi0_Theta = f['EventTree'].array('Pi0_Theta', entrystart = entrystart, entrystop = entrystart+NEvent)
+Pi0_Phi = f['EventTree'].array('Pi0_Phi', entrystart = entrystart, entrystop = entrystart+NEvent)
+
+Photon1_E = f['EventTree'].array('Photon1_E', entrystart = entrystart, entrystop = entrystart+NEvent)
+Photon1_Theta = f['EventTree'].array('Photon1_Theta', entrystart = entrystart, entrystop = entrystart+NEvent)
+Photon1_Phi = f['EventTree'].array('Photon1_Phi', entrystart = entrystart, entrystop = entrystart+NEvent)
+
+Photon2_E = f['EventTree'].array('Photon2_E', entrystart = entrystart, entrystop = entrystart+NEvent)
+Photon2_Theta = f['EventTree'].array('Photon2_Theta', entrystart = entrystart, entrystop = entrystart+NEvent)
+Photon2_Phi = f['EventTree'].array('Photon2_Phi', entrystart = entrystart, entrystop = entrystart+NEvent)
 
 # -------- add noise to the original total energy --------- #
 Orig_Layer = Layer # --- renaming the original energy tensor ----- #
@@ -67,6 +83,12 @@ truth_Nu_RealRes = np.array([ MakeRealResolution(Nu_Layer[i_img], Track_Layer[i_
 
 # ------ make the real resolution for truth charged energy ------------- #
 truth_Ch_RealRes = np.array([ MakeRealResolution(Ch_Layer[i_img], Track_Layer[i_img]) for i_img in range( len(Ch_Layer) )  ])
+
+# ------ make the truth extrapolated layer for Pi+ --------- #
+ChargePi_CellIndex_Layer = np.array( [MakeTruthTrajectory(Trk_Theta[ievt], Trk_Phi[ievt], Trk_X_indx[ievt], Trk_X_indx[ievt]) for ievt in range( NEvent )  ] )
+
+# ------ make the truth extrapolated layer for Pi0 --------- #
+NeutralPi_CellIndex_Layer = np.array( [MakeTruthTrajectory(Pi0_Theta[ievt], Pi0_Phi[ievt], Trk_X_indx[ievt], Trk_X_indx[ievt]) for ievt in range( NEvent )  ] )
 
 # ----- create the co-ordinates of cell mid-points --- #
 Layer_Pixel = [32, 64, 32, 16, 16, 8] # --> granularity of the six layers --- #
@@ -118,6 +140,16 @@ with h5py.File('Outfile_CellInformation.h5', 'w') as f:
     f.create_dataset('Trk_Phi', data=Trk_Phi)
     f.create_dataset('Smeared_Track_Energy', data=Track_Energy)
     f.create_dataset('Track_Image', data=Track_Layer)
+    f.create_dataset('ChargePi_CellIndex_Layer', data=ChargePi_CellIndex_Layer)
+    f.create_dataset('NeutralPi_CellIndex_Layer', data=NeutralPi_CellIndex_Layer)
+
+    f.create_dataset('Photon1_E', data=Photon1_E)
+    f.create_dataset('Photon1_Theta', data=Photon1_Theta)
+    f.create_dataset('Photon1_Phi', data=Photon1_Phi)
+
+    f.create_dataset('Photon2_E', data=Photon2_E)
+    f.create_dataset('Photon2_Theta', data=Photon2_Theta)
+    f.create_dataset('Photon2_Phi', data=Photon2_Phi)
 
 print('Exiting ... Bye!')
 # --- end of file ---- #
