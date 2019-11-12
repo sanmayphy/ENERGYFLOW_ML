@@ -131,8 +131,9 @@ with h5py.File('Outfile_CellInformation.h5', 'w') as f:
         #f.create_dataset('Predicted_NeutralEnergy_Layer' + str(layer_i+1), data=pred_Nu_Layer[ :, layer_i:layer_i+1,  0:Layer_Pixel[layer_i], 0:Layer_Pixel[layer_i] ] )
         f.create_dataset('MidPoint_X_Layer' + str(layer_i+1), data=layer_cell_x[layer_i] )
         f.create_dataset('MidPoint_Y_Layer' + str(layer_i+1), data=layer_cell_x[layer_i] ) 
-        f.create_dataset('MidPoint_Z_Layer' + str(layer_i+1), data=zpos_Arr[layer_i] )
+    #    f.create_dataset('MidPoint_Z_Layer' + str(layer_i+1), data=np.array(zpos_Arr[layer_i]) )
 
+    f.create_dataset('MidPoint_Z_Layer', data=zpos_Arr)
     f.create_dataset('Trk_X_pos', data=Trk_X_pos)
     f.create_dataset('Trk_Y_pos', data=Trk_Y_pos)
 
@@ -140,8 +141,12 @@ with h5py.File('Outfile_CellInformation.h5', 'w') as f:
     f.create_dataset('Trk_Phi', data=Trk_Phi)
     f.create_dataset('Smeared_Track_Energy', data=Track_Energy)
     f.create_dataset('Track_Image', data=Track_Layer)
-    f.create_dataset('ChargePi_CellIndex_Layer', data=ChargePi_CellIndex_Layer)
-    f.create_dataset('NeutralPi_CellIndex_Layer', data=NeutralPi_CellIndex_Layer)
+    #f.create_dataset('ChargePi_CellIndex_Layer', data=ChargePi_CellIndex_Layer)
+    #f.create_dataset('NeutralPi_CellIndex_Layer', data=NeutralPi_CellIndex_Layer)
+
+
+    f.create_dataset('Pi0_Theta', data=Pi0_Theta)
+    f.create_dataset('Pi0_Phi', data=Pi0_Phi)
 
     f.create_dataset('Photon1_E', data=Photon1_E)
     f.create_dataset('Photon1_Theta', data=Photon1_Theta)
