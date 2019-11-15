@@ -85,10 +85,10 @@ truth_Nu_RealRes = np.array([ MakeRealResolution(Nu_Layer[i_img], Track_Layer[i_
 truth_Ch_RealRes = np.array([ MakeRealResolution(Ch_Layer[i_img], Track_Layer[i_img]) for i_img in range( len(Ch_Layer) )  ])
 
 # ------ make the truth extrapolated layer for Pi+ --------- #
-ChargePi_CellIndex_Layer = np.array( [MakeTruthTrajectory(Trk_Theta[ievt], Trk_Phi[ievt], Trk_X_indx[ievt], Trk_X_indx[ievt]) for ievt in range( NEvent )  ] )
+#ChargePi_CellIndex_Layer = np.array( [MakeTruthTrajectory(Trk_Theta[ievt], Trk_Phi[ievt], Trk_X_indx[ievt], Trk_X_indx[ievt]) for ievt in range( NEvent )  ] )
 
 # ------ make the truth extrapolated layer for Pi0 --------- #
-NeutralPi_CellIndex_Layer = np.array( [MakeTruthTrajectory(Pi0_Theta[ievt], Pi0_Phi[ievt], Trk_X_indx[ievt], Trk_X_indx[ievt]) for ievt in range( NEvent )  ] )
+#NeutralPi_CellIndex_Layer = np.array( [MakeTruthTrajectory(Pi0_Theta[ievt], Pi0_Phi[ievt], Trk_X_indx[ievt], Trk_X_indx[ievt]) for ievt in range( NEvent )  ] )
 
 # ----- create the co-ordinates of cell mid-points --- #
 Layer_Pixel = [32, 64, 32, 16, 16, 8] # --> granularity of the six layers --- #
@@ -155,6 +155,9 @@ with h5py.File('Outfile_CellInformation.h5', 'w') as f:
     f.create_dataset('Photon2_E', data=Photon2_E)
     f.create_dataset('Photon2_Theta', data=Photon2_Theta)
     f.create_dataset('Photon2_Phi', data=Photon2_Phi)
+
+    f.create_dataset('Trk_X_indx', data=Trk_X_indx)
+    f.create_dataset('Trk_Y_indx', data=Trk_Y_indx)
 
 print('Exiting ... Bye!')
 # --- end of file ---- #
