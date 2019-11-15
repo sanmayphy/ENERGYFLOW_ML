@@ -5,6 +5,7 @@ f = h5py.File('../../data/Outfile_CellInformation.h5','r')
 
 n_events = len(f['RealRes_TotalEnergy_Layer1'][:])
 
+print('n events ',n_events)
 geometry = {}
 
 for layer_i in range(6):
@@ -17,7 +18,8 @@ h5_datasets = {}
 
 for layer_i in range(6):
 	output_arrays['Predicted_NeutralEnergy_Layer'+str(layer_i+1)] = []
-	h5_datasets[layer_i+1] = outputfile.create_dataset('Predicted_NeutralEnergy_Layer'+str(layer_i+1), (n_events,1,geometry[layer_i+1],geometry[layer_i+1]))
+	h5_datasets[layer_i+1] = outputfile.create_dataset('Predicted_NeutralEnergy_Layer'+str(layer_i+1), (n_events,1,geometry[layer_i+1],geometry[layer_i+1]),
+		dtype='float')
 
 
 buffer_size = 1000
@@ -34,17 +36,22 @@ for event_i in range(n_events):
 		#pick some random fraction between 0,1
 		output_i = np.random.rand(shape_i[0],shape_i[1],shape_i[2])
 
+		#zero values that are below 0, so we don't get negtive predictions
 		input_i[input_i < 0] = 0
+
 		#get the output in terms of energy out of the total
 		output_i = input_i*output_i
 
 		output_arrays['Predicted_NeutralEnergy_Layer'+str(layer_i+1)].append(output_i)
 
+		
+
 	if event_i > 0 and event_i % buffer_size == 0 or event_i==n_events-1:
 		for layer_i in range(6):
-			array_to_save = np.array(output_arrays['Predicted_NeutralEnergy_Layer'+str(layer_i+1)])
+			array_to_save = np.array(output_arrays['Predicted_NeutralEnergy_Layer'+str(layer_i+1)]).astype('float')
 			n_buffered = len(array_to_save)
-			h5_datasets[layer_i+1][event_i-n_buffered:event_i] = array_to_save
+			
+			h5_datasets[layer_i+1][int(np.max(0,event_i-n_buffered)):event_i+1] = array_to_save
 			output_arrays['Predicted_NeutralEnergy_Layer'+str(layer_i+1)] = []
 
 outputfile.close()
