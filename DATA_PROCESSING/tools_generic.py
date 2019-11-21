@@ -10,9 +10,16 @@ def Clustering(layer1,layer2,layer3,layer4,layer5,layer6):
  SeedN = Convert(layer1,layer2,layer3,layer4,layer5,layer6,2,5)
  SeedP = Convert(layer1,layer2,layer3,layer4,layer5,layer6,0,2)
 
+ #print("printing seedS",SeedS)  
+ #print("printing seedN",SeedN)
+ #print("printing seedP",SeedP)
  PC = Proto(SeedS,SeedN,SeedP)
- PCm = MergeS(PC,SeedS)
- 
+ #print('PC',len(PC), PC)
+ if len(PC)==1: PCm = PC 
+ else: PCm = MergeS(PC,SeedS)
+
+# print("PC",PC)
+# print("PCC",PCm)
  return PCm
 
 
@@ -21,18 +28,22 @@ def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
  seed = []
  noise = [10, 20, 15, 20, 20, 20]
 
+# print(layer1[0])
  layer = []
- layer.append(list(layer1[0]))
- layer.append(list(layer2[0]))
- layer.append(list(layer3[0]))
- layer.append(list(layer4[0]))
- layer.append(list(layer5[0]))
- layer.append(list(layer6[0]))
+ layer.append(layer1[0].tolist())
+ layer.append(layer2[0].tolist())
+ layer.append(layer3[0].tolist())
+ layer.append(layer4[0].tolist())
+ layer.append(layer5[0].tolist())
+ layer.append(layer6[0].tolist())
 
-
+ #print('layer 1',layer[0])
+ #print("En. Check")
  lt = - 1 
  for l in layer:
   lt = lt +1
+  
+#  if lt == 0: print('printing layer', lt, l) 
   Y = -1
   for cellY in l:
    Y = Y +1
@@ -40,9 +51,11 @@ def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
    for cellX in cellY:
     X = X + 1
     celE = [lt,Y,X,cellX]
+    #if lt==0 and cellX>0: print(celE)
     if celE[3]/noise[lt] > lower and celE[3]/noise[lt] < upper:
        seed.append([lt,Y,X])
-  
+
+ #print("printing seed",seed) 
  return seed
 
 
@@ -61,16 +74,42 @@ def Proto(sedS,sedN,sedP):
      proto.append(cell)
      #define the one close to it
      #need to add new ones
-     if lay != 5: cell_proto.append([lay+1,cX,cY])
-     if lay 1= 0: cell_proto.append([lay-1,cX,cY])
+
+     #+1 layer doubled
+     if lay == 0:
+      cell_proto.append([lay+1,2*cX+1,2*cY+1])
+      cell_proto.append([lay+1,2*cX+1,2*cY])
+      cell_proto.append([lay+1,2*cX,2*cY+1])
+      cell_proto.append([lay+1,2*cX,2*cY])
+
+     if lay == 3:
+      cell_proto.append([lay+1,cX,cY])
+
+     if lay == 4:
+       cell_proto.append([lay-1,cX,cY])
+     #-1 layer doubled 
+     if lay==5 or lay ==2 or lay ==3:
+      cell_proto.append([lay-1,2*cX+1,2*cY+1])
+      cell_proto.append([lay-1,2*cX+1,2*cY])
+      cell_proto.append([lay-1,2*cX,2*cY+1])
+      cell_proto.append([lay-1,2*cX,2*cY])
+
+     #+1 layer half 
+     if lay==1 or lay ==2  or lay ==4:
+      cell_proto.append([lay+1,cX/2//1,cY/2//1])
+
+     #-1 layer half
+     if lay == 1:
+      cell_proto.append([lay-1,cX/2//1,cY/2//1])
+
      cell_proto.append([lay,cX+1,cY])
      cell_proto.append([lay,cX-1,cY])
      cell_proto.append([lay,cX,cY+1])
      cell_proto.append([lay,cX,cY-1])
-     cell_proto.append([lay,cX+2,cY])
-     cell_proto.append([lay,cX-2,cY])
-     cell_proto.append([lay,cX,cY+2])
-     cell_proto.append([lay,cX,cY-2])
+     #cell_proto.append([lay,cX+2,cY])
+     #cell_proto.append([lay,cX-2,cY])
+     #cell_proto.append([lay,cX,cY+2])
+     #cell_proto.append([lay,cX,cY-2])
      cell_proto.append([lay,cX+1,cY+1])
      cell_proto.append([lay,cX+1,cY-1])
      cell_proto.append([lay,cX-1,cY+1])
@@ -78,40 +117,86 @@ def Proto(sedS,sedN,sedP):
      #first cluster the low energy ones
      for cp in cell_proto:
       if cp  in sedP:
-#       print "increasing the protoCluster with seed",cell," and new cell P:",cp
+       #print "increasing the protoCluster with seed",cell," and new cell P:",cp
        proto.append(cp)
      for cpN in cell_proto:
       if cpN in sedN:
-#       print "increasing the protoCluster with seed",cell," and new cell N:",cp
+       
+       #print "increasing the protoCluster with seed",cell," and new cell N:",cp
        proto.append(cpN)
+   
        layNP = cpN[0]
        cXNP  = cpN[1]
        cYNP  = cpN[2]
        new_CellP = []
-       new_CellP.append([layNP+1,cXNP,cYNP])
-       new_CellP.append([layNP-1,cXNP,cYNP])
+       if layNP == 0:
+        new_CellP.append([layNP+1,2*cXNP+1,2*cYNP+1])
+        new_CellP.append([layNP+1,2*cXNP+1,2*cYNP])
+        new_CellP.append([layNP+1,2*cXNP,2*cYNP+1])
+        new_CellP.append([layNP+1,2*cXNP,2*cYNP])
+
+       if layNP==2:
+        new_CellP.append([layNP-1,2*cXNP+1,2*cYNP+1])
+	new_CellP.append([layNP-1,2*cXNP+1,2*cYNP])
+        new_CellP.append([layNP-1,2*cXNP,2*cYNP+1])
+        new_CellP.append([layNP-1,2*cXNP,2*cYNP])
+        
+        new_CellP.append([layNP+1,cXNP/2//1,cYNP/2//1])
+
+       if layNP==1:
+        new_CellP.append([layNP+1,cXNP/2//1,cYNP/2//1])
+        new_CellP.append([layNP-1,cXNP/2//1,cYNP/2//1])
+
+       if layNP ==3:
+        new_CellP.append([layNP-1,2*cXNP+1,2*cYNP+1])
+        new_CellP.append([layNP-1,2*cXNP+1,2*cYNP])
+        new_CellP.append([layNP-1,2*cXNP,2*cYNP+1])
+        new_CellP.append([layNP-1,2*cXNP,2*cYNP])
+
+        new_CellP.append([layNP+1,cXNP,cYNP]) 
+
+       if layNP ==4:
+        new_CellP.append([layNP-1,cXNP,cYNP])
+
+        new_CellP.append([layNP+1,cXNP/2//1,cYNP/2//1])
+
+       if lay ==5:
+        new_CellP.append([layNP-1,2*cXNP+1,2*cYNP+1])
+	new_CellP.append([layNP-1,2*cXNP+1,2*cYNP])
+        new_CellP.append([layNP-1,2*cXNP,2*cYNP+1])
+        new_CellP.append([layNP-1,2*cXNP,2*cYNP])
+        
+
        new_CellP.append([layNP,cXNP+1,cYNP])
        new_CellP.append([layNP,cXNP-1,cYNP])
        new_CellP.append([layNP,cXNP,cYNP+1])
        new_CellP.append([layNP,cXNP,cYNP-1])
-       new_CellP.append([layNP,cXNP+2,cYNP])
-       new_CellP.append([layNP,cXNP-2,cYNP])
-       new_CellP.append([layNP,cXNP,cYNP+2])
-       new_CellP.append([layNP,cXNP,cYNP-2])
+       #new_CellP.append([layNP,cXNP+2,cYNP])
+       #new_CellP.append([layNP,cXNP-2,cYNP])
+       #new_CellP.append([layNP,cXNP,cYNP+2])
+       #new_CellP.append([layNP,cXNP,cYNP-2])
        new_CellP.append([layNP,cXNP+1,cYNP+1])
        new_CellP.append([layNP,cXNP+1,cYNP-1])
        new_CellP.append([layNP,cXNP-1,cYNP+1])
        new_CellP.append([layNP,cXNP-1,cYNP-1])
        for new_cell in new_CellP:
         if new_cell not in proto:
-         if new_cell in sedP:
+         if new_cell in sedP or new_cell in sedN:
+                  
           proto.append(new_cell)
 
+     
+     #print('protoensamble',proto)
      proto_ensemble.append(proto)
      proto_ensembleMerged = []
      #need now to merge
+     
+
+    #print("PROTOENSEMBLE",proto_ensemble)
+
     merge_final = []
     merge_final_check = []
+   
     i = 0
     f = 0
     for pe in proto_ensemble:
@@ -129,36 +214,64 @@ def Proto(sedS,sedN,sedP):
       if merged != []: f = f + 1
       if merged != []: merge_final.append(merged)
 
-
 #        merged = merged + common_cluster(pe,pe_1)
 #      proto_ensembleMerged.append(merged)
 #
     merge_clean = clean_duplicates(merge_final)
+    #print("CLEANN",merge_clean)
     return merge_clean
 
 def MergeS(proto,seed):
-   p_fcheck = []
-   p_f = []
-   for p in proto:
-    for p1 in proto:
-     if p1 != p and p not in p_fcheck and p1 not in p_fcheck:
-      cell1 = []
-      for c in p1:
-       cell1.append([c[0]+1,c[1],c[2]])
-       cell1.append([c[0]-1,c[1],c[2]])
-       cell1.append([c[0],c[1]+1,c[2]])
-       cell1.append([c[0],c[1]-1,c[2]])
-       cell1.append([c[0],c[1],c[2]+1])
-       cell1.append([c[0],c[1],c[2]-1])
-      for neib in cell1:
-       if neib not in p and neib in seed and neib :
-        p_f.append(p + p1)
-        p_fcheck.append(p)
-        p_fcheck.append(p1)
-        break
-   return p_f
+ p_fcheck = []
+ p_f = []
+ appo = []
+ for p in proto:
+  for p1 in proto:
+   if p1 != p and p not in p_fcheck and p1 not in p_fcheck:
+    cell1 = []
+    for c in p1:
+     if c[0] == 0:
+      cell1.append([c[0]+1,2*c[1]+1,2*c[2]+1])
+      cell1.append([c[0]+1,2*c[1]+1,2*c[2]])
+      cell1.append([c[0]+1,2*c[1],2*c[2]+1])
+      cell1.append([c[0]+1,2*c[1],2*c[2]])
+      
+     if c[0]==5 or c[0] ==2 or c[0] ==3:
+      cell1.append([c[0]-1,2*c[1]+1,2*c[2]+1])
+      cell1.append([c[0]-1,2*c[1]+1,2*c[2]])
+      cell1.append([c[0]-1,2*c[1],2*c[2]+1])
+      cell1.append([c[0]-1,2*c[1],2*c[2]])
+      
+     if c[0]==1 or c[0] ==2 or c[0] ==4:
+      cell1.append([c[0]+1,c[1]/2//1,c[2]/2//1]) 
+        
+     if c[0] == 1:
+      cell1.append([c[0]-1,c[1]/2//1,c[2]/2//1])
+      
+     if c[0] == 3:
+      cell1.append([c[0]+1,c[1],c[2]])
+        
+     if c[0] == 4:
+      cell1.append([c[0]-1,c[1],c[2]])
+      
+     cell1.append([c[0],c[1]+1,c[2]])
+     cell1.append([c[0],c[1]-1,c[2]])
+     cell1.append([c[0],c[1],c[2]+1])
+     cell1.append([c[0],c[1],c[2]-1])
 
-
+#    print("BOUNDARY",cell1)
+     
+    for neib in cell1:
+     if neib in p and neib in seed and neib not in appo:
+      appo=p+p1
+      p_f.append(p + p1)
+      p_fcheck.append(p)
+      p_fcheck.append(p1)
+      break
+ if p_f ==[]: p_f = proto
+ 
+ return p_f
+     
 
 
 def common_cluster(proto1,proto2):
@@ -201,22 +314,25 @@ def Assign_Topo(Proto):
     np1 = 0
     for p in Proto: 
      np1 = np1 + 1
+ #    print(np1)
      for c in p:
       if c[0] == 0:
-       out_image1[c[1]-1,c[2]-1] = np1    
+       out_image1[c[1],c[2]] = np1    
       if c[0] == 1:
-       out_image2[c[1]-1,c[2]-1] = np1      
+       out_image2[c[1],c[2]] = np1      
       if c[0] == 2:
-       out_image3[c[1]-1,c[2]-1] = np1      
+       out_image3[c[1],c[2]] = np1      
       if c[0] == 3:
-       out_image4[c[1]-1,c[2]-1] = np1      
+       out_image4[c[1],c[2]] = np1      
       if c[0] == 4:
-       out_image5[c[1]-1,c[2]-1] = np1      
+       out_image5[c[1],c[2]] = np1      
       if c[0] == 5:
-       out_image6[c[1]-1,c[2]-1] = np1      
-       
+       out_image6[c[1],c[2]] = np1      
 
+    
     out_imagef = [out_image1,out_image2,out_image3,out_image4,out_image5,out_image6]
+#    if(np1>1):
+#     print(out_imagef)
     return out_imagef
     #return np.stack(out_imagef,axis=0)
 
