@@ -8,8 +8,8 @@ import pandas as pd
 import math
 
 # ------ hard coding the geometry for truth trajectory ---------- #
-X0_ECAL = 0.5 + 14.0
-Lambda_int = 16.8 + 79.4
+X0_ECAL = 3.897
+Lambda_int_HCAL = 17.438
 
 Total_ECAL_Length = 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL
 Total_HCAL_Length = 1.5 * Lambda_int + 4.1 * Lambda_int + 1.8 * Lambda_int
@@ -17,12 +17,14 @@ Total_Calo_Length = Total_ECAL_Length + Total_HCAL_Length + 1.0 # -- there is a 
 
 
 zpos_ECAL1 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL/2
-zpos_ECAL2 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL/2
-zpos_ECAL3 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL/2
+zpos_ECAL2 = zpos_ECAL1 + 3 * X0_ECAL/2 + 16  * X0_ECAL/2
+zpos_ECAL3 = zpos_ECAL2 + 16 * X0_ECAL/2 + 6 * X0_ECAL/2
 
-zpos_HCAL1 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL + 1 + 1.5 * Lambda_int/2
-zpos_HCAL2 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL + 1 + 1.5 * Lambda_int + 4.1 * Lambda_int/2
-zpos_HCAL3 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL + 1 + 1.5 * Lambda_int + 4.1 * Lambda_int + 1.8 * Lambda_int/2
+zpos_GAP = zpos_ECAL3 + 6 * X0_ECAL/2 + 1/2
+
+zpos_HCAL1 = zpos_GAP + 1/2 + 1.5 * Lambda_int_HCAL/2
+zpos_HCAL2 = zpos_HCAL1 + 1.5 * Lambda_int_HCAL/2 + 4.1 * Lambda_int_HCAL/2
+zpos_HCAL3 = zpos_HCAL2 + 4.1 * Lambda_int_HCAL/2 + 1.8 * Lambda_int_HCAL/2
 
 layer_struct = {'layer1' : 32, 'layer2' : 64, 'layer3' : 32, 'layer4' : 16, 'layer5' : 16, 'layer6' : 8}
 
