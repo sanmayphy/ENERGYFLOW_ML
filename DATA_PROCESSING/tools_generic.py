@@ -26,6 +26,7 @@ def Clustering(layer1,layer2,layer3,layer4,layer5,layer6):
 
 def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
  seed = []
+#noise=[0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
  noise = [20, 20, 30, 80, 80, 160]
 
 # print(layer1[0])
@@ -52,7 +53,7 @@ def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
     X = X + 1
     celE = [lt,Y,X,cellX]
 #    if lt==1 and celE[3]/noise[lt]>3: print("Seed E", celE[3],"Greater than ",noise[lt]*lower , Y, X)
-    if celE[3]/noise[lt] > lower and celE[3]/noise[lt] < upper:
+    if celE[3]>noise[lt]* lower and celE[3]<noise[lt] * upper:
        seed.append([lt,Y,X])
 
  #print("printing seed",seed) 

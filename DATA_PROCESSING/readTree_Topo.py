@@ -27,7 +27,7 @@ print ("Init")
 #neutral Dict
 Layer={}
 for LAY in range(1,7):
-    Layer['n'+str(LAY)]=(f['RealRes_TotalEnergy_Layer'+str(LAY)][:])
+    Layer['n'+str(LAY)]=(f['RealRes_ChargedEnergy_Layer'+str(LAY)][:])
 
 #print(RealRes_NeutralEnergy_Layer1, 'layer1', 'AA')
 #print(RealRes_NeutralEnergy_Layer1,'ai')
@@ -39,8 +39,8 @@ print ("Looping")
 for event in range(len(Layer['n5'])):
 
     i = i+ 1
-    if i%100==0: print('in loop ev: ',i)
-    if i > 7000: break
+    if i%10==0: print('in loop ev: ',i)
+    if i > 1000: break
     #print(Layer['n5'][i])
     Proto = tools_generic.Clustering(Layer['n1'][i],Layer['n2'][i],Layer['n3'][i],Layer['n4'][i],Layer['n5'][i],Layer['n6'][i])
     #print('event'+str(event))
@@ -55,7 +55,7 @@ for event in range(len(Layer['n5'])):
 out_image = np.array(out_image)
 print(out_image.shape)
 print('opening File')
-with h5py.File('Outfile_TopoClusterTotalAtl.h5', 'w') as f1:
+with h5py.File('Outfile_TopoClusterTotal.h5', 'w') as f1:
      for layer_i in range(6):
         f1.create_dataset('TopoClusters' + str(layer_i+1), data=out_image[:, layer_i:layer_i+1,:, :])
 
