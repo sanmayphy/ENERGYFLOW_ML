@@ -67,22 +67,22 @@ Photon2_Phi = f['EventTree'].array('Photon2_Phi', entrystart = entrystart, entry
 
 # -------- add noise to the original total energy --------- #
 Orig_Layer = Layer # --- renaming the original energy tensor ----- #
-Layer = Layer + Noise_Layer
+#Layer = Layer + Noise_Layer
 
 # ------ make the images for track layer ------- #
 Track_Layer = np.array( [ MakeTrackLayer(Track_Energy[it], Trk_X_pos[it], Trk_Y_pos[it]) for  it in range(len(Track_Energy))] )
 
 # ------ make the real resolution for total energy ------------- #
-RealRes = np.array([ MakeRealResolution(Layer[i_img], Track_Layer[i_img]) for i_img in range( len(Layer) )  ])
+RealRes = np.array([ MakeRealResolution(Layer[i_img], Noise_Layer[i_img], Track_Layer[i_img]) for i_img in range( len(Layer) )  ])
 
 # ------ make the real resolution for original energy ------------- #
-Orig_RealRes = np.array([ MakeRealResolution(Orig_Layer[i_img], Track_Layer[i_img]) for i_img in range( len(Orig_Layer) )  ])
+Orig_RealRes = np.array([ MakeRealResolution(Layer[i_img], np.zeros([6, 64, 64]), Track_Layer[i_img]) for i_img in range( len(Layer) )  ])
 
 # ------ make the real resolution for truth neutral energy ------------- #
-truth_Nu_RealRes = np.array([ MakeRealResolution(Nu_Layer[i_img], Track_Layer[i_img]) for i_img in range( len(Nu_Layer) )  ])
+truth_Nu_RealRes = np.array([ MakeRealResolution(Nu_Layer[i_img], np.zeros([6, 64, 64]), Track_Layer[i_img]) for i_img in range( len(Nu_Layer) )  ])
 
 # ------ make the real resolution for truth charged energy ------------- #
-truth_Ch_RealRes = np.array([ MakeRealResolution(Ch_Layer[i_img], Track_Layer[i_img]) for i_img in range( len(Ch_Layer) )  ])
+truth_Ch_RealRes = np.array([ MakeRealResolution(Ch_Layer[i_img], np.zeros([6, 64, 64]), Track_Layer[i_img]) for i_img in range( len(Ch_Layer) )  ])
 
 # ------ make the truth extrapolated layer for Pi+ --------- #
 #ChargePi_CellIndex_Layer = np.array( [MakeTruthTrajectory(Trk_Theta[ievt], Trk_Phi[ievt], Trk_X_indx[ievt], Trk_X_indx[ievt]) for ievt in range( NEvent )  ] )
@@ -99,29 +99,14 @@ for layer_i in range(6) :
 
 
 # ----- hard coding the layer depth for z direction -------- #
-X0_ECAL = 0.5 + 14.0
-Lambda_int = 16.8 + 79.4
-
-Total_ECAL_Length = 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL
-Total_HCAL_Length = 1.5 * Lambda_int + 4.1 * Lambda_int + 1.8 * Lambda_int
-Total_Calo_Length = Total_ECAL_Length + Total_HCAL_Length + 1.0 # -- there is a 1 cm gap between ECAL & HCAL
-
-
-zpos_ECAL1 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL/2
-zpos_ECAL2 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL/2
-zpos_ECAL3 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL/2
-
-zpos_HCAL1 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL + 1 + 1.5 * Lambda_int/2
-zpos_HCAL2 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL + 1 + 1.5 * Lambda_int + 4.1 * Lambda_int/2
-zpos_HCAL3 = -1 * Total_Calo_Length/2 + 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL + 1 + 1.5 * Lambda_int + 4.1 * Lambda_int + 1.8 * Lambda_int/2
-
+from GlobalFunctions import zpos_ECAL1, zpos_ECAL2, zpos_ECAL3, zpos_HCAL1, zpos_HCAL2, zpos_HCAL3
 
 zpos_Arr = np.array([zpos_ECAL1, zpos_ECAL2, zpos_ECAL3, zpos_HCAL1, zpos_HCAL2, zpos_HCAL3])
 
 
 with h5py.File('Outfile_CellInformation.h5', 'w') as f:
     for layer_i in range(6) : 
-        f.create_dataset('UniformRes_TotalEnergy_Layer' + str(layer_i+1), data=Layer[:, layer_i:layer_i+1, :, :])
+        f.create_dataset('UniformRes_TotalEnergy_Layer' + str(layer_i+1), data=Layer[:, layer_i:layer_i+1, :, :] + Noise_Layer[:, layer_i:layer_i+1, :, :] )
         #f.create_dataset('UniformRes_NoiseEnergy_Layer' + str(layer_i+1), data=Noise_Layer[:5, layer_i:layer_i+1, :, :])
         f.create_dataset('UniformRes_ChargedEnergy_Layer' + str(layer_i+1), data=Ch_Layer[:, layer_i:layer_i+1, :, :])
         f.create_dataset('UniformRes_NeutralEnergy_Layer' + str(layer_i+1), data=Nu_Layer[:, layer_i:layer_i+1, :, :])

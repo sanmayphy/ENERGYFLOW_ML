@@ -12,7 +12,7 @@ X0_ECAL = 3.897
 Lambda_int_HCAL = 17.438
 
 Total_ECAL_Length = 3 * X0_ECAL + 16 * X0_ECAL + 6 * X0_ECAL
-Total_HCAL_Length = 1.5 * Lambda_int + 4.1 * Lambda_int + 1.8 * Lambda_int
+Total_HCAL_Length = 1.5 * Lambda_int_HCAL + 4.1 * Lambda_int_HCAL + 1.8 * Lambda_int_HCAL
 Total_Calo_Length = Total_ECAL_Length + Total_HCAL_Length + 1.0 # -- there is a 1 cm gap between ECAL & HCAL
 
 
@@ -97,7 +97,7 @@ def MakeTrackLayer(tr_e, tr_x, tr_y) :
 
 
 # ------ making variable resolution from uniform resolution ----- #
-def SumPixel(image_l, size=64) : 
+def SumPixel(image_l, noise_l, size=64) : 
     
     orig_pixel = image_l.shape[0]
     
@@ -107,29 +107,35 @@ def SumPixel(image_l, size=64) :
     
     for it_x in range( size ) : 
         for it_y in range( size ) : 
-            out_image[it_x:it_x+1, it_y:it_y+1] = np.sum( image_l[scale*it_x:scale*(it_x+1), scale*it_y:scale*(it_y+1)] )
+            
+            val = np.sum( image_l[scale*it_x:scale*(it_x+1), scale*it_y:scale*(it_y+1)] )\
+                                                  + noise_l[it_x:it_x+1, it_y:it_y+1]
+            
+            if(val < 0.) : val = 0
+            out_image[it_x:it_x+1, it_y:it_y+1] = val
         
-    #print('Orig E: ', np.sum(image_l), ', rescaled E: ', np.sum(out_image))   
+    #print('Orig E: ', np.sum(image_l), ', rescaled E: ', np.sum(out_image))  
+
     return out_image
 
-def MakeRealResolution(image, tr_image) : 
+def MakeRealResolution(image, noise_image, tr_image) : 
     
-    x1 = SumPixel(image[0], size=32)
+    x1 = SumPixel(image[0], noise_image[0], size=32)
     #x1 = np.reshape( x1, tuple( [1] + list(x1.shape) ) )
     
-    x2 = SumPixel(image[1], size=64)
+    x2 = SumPixel(image[1], noise_image[1], size=64)
     #x2 = np.reshape( x2, tuple( [1] + list(x2.shape) ) )
     
-    x3 = SumPixel(image[2], size=32)
+    x3 = SumPixel(image[2], noise_image[2], size=32)
     #x3 = np.reshape( x3, tuple( [1] + list(x3.shape) ) )
      
-    x4 = SumPixel(image[3], size=16)
+    x4 = SumPixel(image[3], noise_image[3], size=16)
     #x4 = np.reshape( x4, tuple( [1] + list(x4.shape) ) )
     
-    x5 = SumPixel(image[4], size=16)
+    x5 = SumPixel(image[4], noise_image[4], size=16)
     #x5 = np.reshape( x5, tuple( [1] + list(x5.shape) ) )
     
-    x6 = SumPixel(image[5], size=8)
+    x6 = SumPixel(image[5], noise_image[5], size=8)
     #x6 = np.reshape( x6, tuple( [1] + list(x6.shape) ) )
     
     x = [ x1, x2, x3, x4, x5, x6 , tr_image]
