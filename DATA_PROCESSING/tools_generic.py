@@ -56,7 +56,7 @@ def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
    for cellX in cellY:
     X = X + 1
     celE = [lt,Y,X,cellX]
-#    if lt==1 and celE[3]/noise[lt]>3: print("Seed E", celE[3],"Greater than ",noise[lt]*lower , Y, X)
+    if lt==1 and Y==64: print("Seed E", celE[3],"Greater than ",noise[lt]*lower , Y, X)
     if celE[3]>noise[lt]* lower and celE[3]<noise[lt] * upper:
        seed.append([lt,Y,X])
 
@@ -90,11 +90,11 @@ def Proto(sedS,sedN,sedP):
 
      #print("CELL", cell)
      if lay!=5:
-      nextl(lay,proto,"next",cX,cY,ATLS)
+      nextl(lay,cell_proto,"next",cX,cY,ATLS)
      if lay!=0:
-      nextl(lay,proto,"prev",cX,cY,ATLS)
+      nextl(lay,cell_proto,"prev",cX,cY,ATLS)
 
-     nextl(lay,proto,"same",cX,cY,ATLS)
+     nextl(lay,cell_proto,"same",cX,cY,ATLS)
   
      #print("NB",proto)
      
