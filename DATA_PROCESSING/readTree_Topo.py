@@ -15,7 +15,7 @@ print ("Init")
 
 
 
-KIND="Charged"       #raw_input("Set the Topoclustering Kind (Charged, Total, Neutral): ")    #Set kind of clustering ("Charged, Total, Neutral")  
+KIND="Total"       #raw_input("Set the Topoclustering Kind (Charged, Total, Neutral): ")    #Set kind of clustering ("Charged, Total, Neutral")  
 
 AddNoise=True
 if KIND=="Total":
@@ -23,8 +23,8 @@ if KIND=="Total":
 
 
 N_EV=len(f['Smeared_Track_Energy'])
-noise=[13.24,  8.48, 16.95, 13.55,  8.12, 13.67]
-layers=[64,64,32,16,16,8]
+noise=[13,  34, 17, 54,  33, 54]
+layers=[64,32,32,16,16,8]
 
 
 fnew_ch={}
@@ -75,7 +75,7 @@ out_image = np.array(out_image)
 print(out_image.shape)
 
 print('opening File')
-with h5py.File('Outfile_'+str(KIND)+'Topo_2N.h5', 'w') as f1:
+with h5py.File('Outfile_'+str(KIND)+'Topo.h5', 'w') as f1:
      for layer_i in range(6):
         f1.create_dataset('TopoClusters' + str(layer_i+1), data=out_image[:, layer_i:layer_i+1,:, :])
 
