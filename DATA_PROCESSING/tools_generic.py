@@ -16,7 +16,8 @@ def Clustering(layer1,layer2,layer3,layer4,layer5,layer6):
  #print("printing seedS",SeedS)  
 
  PC = Proto(SeedS,SeedN,SeedP)
- #print('PC before merge',len(PC), PC)
+ print('Proto before merge',len(PC), PC)
+ print('SeedS', SeedS)
  if len(PC)==1: PCm = PC 
  else: PCm = MergeS(PC,SeedS)
 
@@ -35,7 +36,7 @@ def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
  #noise=[1, 1, 1, 1, 1, 1]
 
  #noise threshold for Noisy samples
- noise = [13,  34, 17, 54,  33, 54]
+ noise = [13, 34, 17, 14,  8, 14]
 
  
 # print(layer1[0])
@@ -61,7 +62,7 @@ def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
    for cellX in cellY:
     X = X + 1
     celE = [lt,Y,X,cellX]
-    #if lt==1 and Y==64: print("Seed E", celE[3],"Greater than ",noise[lt]*lower , Y, X)
+    #if cellX>0print("Seed E", celE[3],"Greater than ",noise[lt]*lower , Y, X)
     if celE[3]>noise[lt]* lower and celE[3]<noise[lt] * upper:
        seed.append([lt,Y,X])
 
