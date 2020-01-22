@@ -9,13 +9,16 @@ import tools_generic
 import os
 
 
-f = h5py.File('../Outfile_CellInformation_HomDet_15to20GeV_FineGran.h5','r')
+#f = h5py.File('../File_En/Outfile_CellInformation_HomDet_15to20GeV_FineGran128_V1.h5','r')
+f = h5py.File('../File_En/Outfile_CellInformation_HomDet_2to5GeV_FineGran128_V1.h5','r')
 
 print ("Init")
 
 
 
-KIND="Charged"       #raw_input("Set the Topoclustering Kind (Charged, Total, Neutral): ")    #Set kind of clustering ("Charged, Total, Neutral")  
+KIND="Total"       #raw_input("Set the Topoclustering Kind (Charged, Total, Neutral): ")    #Set kind of clustering ("Charged, Total, Neutral")  
+
+
 
 AddNoise=True
 if KIND=="Total":
@@ -23,8 +26,8 @@ if KIND=="Total":
 
 
 N_EV=len(f['Smeared_Track_Energy'])
-noise=[13.24,  8.48, 16.95, 13.55,  8.12, 13.67]
-layers=[64,64,32,16,16,8]
+noise=[13, 34, 17, 14,  8, 14]
+layers=[64, 32, 32, 16, 16, 8]
 
 
 fnew_ch={}
@@ -56,8 +59,8 @@ print ("Looping")
 for event in range(N_EV):
 
     i = i+ 1
-    if i%50==0: print('in loop ev: ',i)
-    if i >10: break
+    if i%100==0: print('in loop ev: ',i)
+    if i >20: break
     #print(Layer['n1'][i])
     Proto = tools_generic.Clustering( fnew_ch["layer_1"][i],
                                       fnew_ch["layer_2"][i],
@@ -65,9 +68,9 @@ for event in range(N_EV):
                                       fnew_ch["layer_4"][i],
                                       fnew_ch["layer_5"][i],
                                       fnew_ch["layer_6"][i])
-
-#    print("Final proto",Proto,len(Proto))
-#    print('')
+    print('---------- Final Topocluster '+str(i)+' -----------')
+    print("Final proto",Proto,len(Proto),)
+    #print('')
     out_image.append(tools_generic.Assign_Topo(Proto))
 
 out_image = np.array(out_image)
@@ -75,8 +78,10 @@ out_image = np.array(out_image)
 print(out_image.shape)
 
 print('opening File')
-with h5py.File('Outfile_'+str(KIND)+'Topo_2N.h5', 'w') as f1:
-     for layer_i in range(6):
+#with h5py.File('Outfile_15to20GeV_'+str(KIND)+'Topo.h5', 'w') as f1:
+with h5py.File('Outfile_2to5GeV_'+str(KIND)+'Topo.h5', 'w') as f1:
+
+    for layer_i in range(6):
         f1.create_dataset('TopoClusters' + str(layer_i+1), data=out_image[:, layer_i:layer_i+1,:, :])
 
 print ("Exiting ... Bye!")

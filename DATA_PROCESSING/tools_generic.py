@@ -5,6 +5,9 @@ from array import array
 import numpy as np
 from operator import itemgetter
 #import numpy as np
+
+####################
+
 def Clustering(layer1,layer2,layer3,layer4,layer5,layer6):
  SeedS = Convert(layer1,layer2,layer3,layer4,layer5,layer6,5,100000000000000)
  SeedN = Convert(layer1,layer2,layer3,layer4,layer5,layer6,2,5)
@@ -13,13 +16,16 @@ def Clustering(layer1,layer2,layer3,layer4,layer5,layer6):
  #print("printing seedS",SeedS)  
 
  PC = Proto(SeedS,SeedN,SeedP)
- #print('PC before merge',len(PC), PC)
+ print('Proto before merge',len(PC), PC)
+ print('SeedS', SeedS)
  if len(PC)==1: PCm = PC 
  else: PCm = MergeS(PC,SeedS)
 
  #print("PC after merge",len(PC), PCm)
  return PCm
 
+
+####################
 
 
 def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
@@ -30,7 +36,7 @@ def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
  #noise=[1, 1, 1, 1, 1, 1]
 
  #noise threshold for Noisy samples
- noise = [13.24,  8.48, 16.95, 13.55,  8.12, 13.67]
+ noise = [13, 34, 17, 14,  8, 14]
 
  
 # print(layer1[0])
@@ -56,7 +62,7 @@ def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
    for cellX in cellY:
     X = X + 1
     celE = [lt,Y,X,cellX]
-    if lt==1 and Y==64: print("Seed E", celE[3],"Greater than ",noise[lt]*lower , Y, X)
+    #if cellX>0print("Seed E", celE[3],"Greater than ",noise[lt]*lower , Y, X)
     if celE[3]>noise[lt]* lower and celE[3]<noise[lt] * upper:
        seed.append([lt,Y,X])
 
@@ -64,7 +70,7 @@ def Convert(layer1,layer2,layer3,layer4,layer5,layer6,lower,upper):
  return seed
 
 
-
+#########################
 
 
 
@@ -86,7 +92,7 @@ def Proto(sedS,sedN,sedP):
      #define the one close to it
      #need to add new ones
 
-     layers=[64,64,32,16,16,8]
+     layers=[64,32,32,16,16,8]
 
      #print("CELL", cell)
      if lay!=5:
@@ -138,6 +144,9 @@ def Proto(sedS,sedN,sedP):
 
     return proto_ensemble
 
+
+########################
+
 def MergeS(proto,seed):
 
  lung1=len(proto)
@@ -149,6 +158,7 @@ def MergeS(proto,seed):
 
  return proto
 
+########################
 
 def nextl(l,prot,which, X, Y, ATL):
     
@@ -177,7 +187,7 @@ def nextl(l,prot,which, X, Y, ATL):
             prot.append([l,X+2 ,Y-1])
         return
        
-    layers=[64,64,32,16,16,8]
+    layers=[64,32,32,16,16,8]
     if which=="next": 
      rat=layers[l+1]/float(layers[l])
      l=l+1
@@ -200,12 +210,7 @@ def nextl(l,prot,which, X, Y, ATL):
     if rat==0.5:
         prot.append([l,int(X/2//1),int(Y/2//1)])
 
-
-
-
-
-
-
+#######################
 
 def common_cluster(proto1,proto2):
     protoO = proto1
@@ -216,6 +221,8 @@ def common_cluster(proto1,proto2):
        break
     return protoO,proto1,proto2
 
+   
+#######################
 
 def clean_duplicates(merge_final):
    cleaned_m = []
@@ -227,6 +234,7 @@ def clean_duplicates(merge_final):
      cleaned_m.append(cleaned)
    return cleaned_m
 
+#######################
 
 def Assign_Topo(Proto):
     #out_image1 = np.zeros( [32, 32] )
@@ -246,7 +254,7 @@ def Assign_Topo(Proto):
     np1 = 0
     for p in Proto: 
      np1 = np1 + 1
- #    print(np1)
+     #    print(np1)
      for c in p:
       if c[0] == 0:
        out_image1[c[1],c[2]] = np1    
@@ -263,99 +271,13 @@ def Assign_Topo(Proto):
 
     
     out_imagef = [out_image1,out_image2,out_image3,out_image4,out_image5,out_image6]
-#    if(np1>1):
-#     print(out_imagef)
+    #    if(np1>1):
+    #     print(out_imagef)
     return out_imagef
     #return np.stack(out_imagef,axis=0)
 
 
-
-
-
-def Iter(my_ens,sed):
- new_ens=[]
- check=[]
- k=0
- for i,p in enumerate(my_ens):
-  check.append(p)
-  j=0  
-  for l,pp in enumerate(my_ens):
-   if p!=pp and pp not in check:
-    
-    cell1=[]
-    for c in p:
-     #print([c[0]+1,2*c[1]+1,2*c[2]+1] not in p and [c[0]+1,2*c[1]+1,2*c[2]+1] not in cell1)
-     if c[0] == 0:
-      if [c[0]+1,2*c[1]+1,2*c[2]+1] not in p and [c[0]+1,2*c[1]+1,2*c[2]+1] not in cell1: cell1.append([c[0]+1,2*c[1]+1,2*c[2]+1])
-      if [c[0]+1,2*c[1],2*c[2]+1]   not in p and [c[0]+1,2*c[1],2*c[2]+1]   not in cell1: cell1.append([c[0]+1,2*c[1],2*c[2]+1])
-      if [c[0]+1,2*c[1]+1,2*c[2]]   not in p and [c[0]+1,2*c[1]+1,2*c[2]]   not in cell1: cell1.append([c[0]+1,2*c[1]+1,2*c[2]])
-      if [c[0]+1,2*c[1],2*c[2]]     not in p and [c[0]+1,2*c[1],2*c[2]]     not in cell1: cell1.append([c[0]+1,2*c[1],2*c[2]] )
-     if c[0]==5 or c[0] ==2 or c[0] ==3:
-      if [c[0]-1,2*c[1]+1,2*c[2]+1] not in p and [c[0]-1,2*c[1]+1,2*c[2]+1] not in cell1: cell1.append([c[0]-1,2*c[1]+1,2*c[2]+1])
-      if [c[0]-1,2*c[1],2*c[2]+1]   not in p and [c[0]-1,2*c[1],2*c[2]+1]   not in cell1: cell1.append([c[0]-1,2*c[1],2*c[2]+1])
-      if [c[0]-1,2*c[1]+1,2*c[2]]   not in p and [c[0]-1,2*c[1]+1,2*c[2]]   not in cell1: cell1.append([c[0]-1,2*c[1]+1,2*c[2]])
-      if [c[0]-1,2*c[1],2*c[2]]     not in p and [c[0]-1,2*c[1],2*c[2]]     not in cell1: cell1.append([c[0]-1,2*c[1],2*c[2]])
-     if c[0]==1 or c[0] ==2 or c[0] ==4:
-      if [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] not in p and [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] not in cell1: cell1.append([c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] )
-     if c[0] == 1:
-      if [c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] not in p and [c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] not in cell1: cell1.append([c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] )
-     if c[0] == 3:
-      if [c[0]+1,c[1],c[2]] not in p and [c[0]+1,c[1],c[2]] not in cell1: cell1.append([c[0]+1,c[1],c[2]])
-     if c[0] == 4:
-      if [c[0]-1,c[1],c[2]] not in p and [c[0]-1,c[1],c[2]] not in cell1: cell1.append([c[0]-1,c[1],c[2]])
-      if [c[0],c[1]+1,c[2]] not in p and [c[0],c[1]+1,c[2]] not in cell1: cell1.append([c[0],c[1]+1,c[2]])
-      if [c[0],c[1]-1,c[2]] not in p and [c[0],c[1]-1,c[2]] not in cell1: cell1.append([c[0],c[1]-1,c[2]])
-      if [c[0],c[1],c[2]+1] not in p and [c[0],c[1],c[2]+1] not in cell1: cell1.append([c[0],c[1],c[2]+1])
-      if [c[0],c[1],c[2]-1] not in p and [c[0],c[1],c[2]-1] not in cell1: cell1.append([c[0],c[1],c[2]-1])
-                
-    cell2=[]
-    for c in pp:
-     if c[0] == 0:
-      if [c[0]+1,2*c[1]+1,2*c[2]+1] not in pp and [c[0]+1,2*c[1]+1,2*c[2]+1] not in cell2: cell2.append([c[0]+1,2*c[1]+1,2*c[2]+1])
-      if [c[0]+1,2*c[1],2*c[2]+1]   not in pp and [c[0]+1,2*c[1],2*c[2]+1]   not in cell2: cell2.append( [c[0]+1,2*c[1],2*c[2]+1])
-      if [c[0]+1,2*c[1]+1,2*c[2]]   not in pp and [c[0]+1,2*c[1]+1,2*c[2]]   not in cell2: cell2.append( [c[0]+1,2*c[1]+1,2*c[2]])
-      if [c[0]+1,2*c[1],2*c[2]]     not in pp and [c[0]+1,2*c[1],2*c[2]]     not in cell2: cell2.append( [c[0]+1,2*c[1],2*c[2]]  )
-     if c[0]==5 or c[0] ==2 or c[0] ==3:
-      if [c[0]-1,2*c[1]+1,2*c[2]+1] not in pp and [c[0]-1,2*c[1]+1,2*c[2]+1] not in cell2: cell2.append( [c[0]-1,2*c[1]+1,2*c[2]+1])
-      if [c[0]-1,2*c[1],2*c[2]+1]   not in pp and [c[0]-1,2*c[1],2*c[2]+1]   not in cell2: cell2.append( [c[0]-1,2*c[1],2*c[2]+1])
-      if [c[0]-1,2*c[1]+1,2*c[2]]   not in pp and [c[0]-1,2*c[1]+1,2*c[2]]   not in cell2: cell2.append( [c[0]-1,2*c[1]+1,2*c[2]])
-      if [c[0]-1,2*c[1],2*c[2]]     not in pp and [c[0]-1,2*c[1],2*c[2]]     not in cell2: cell2.append( [c[0]-1,2*c[1],2*c[2]])
-     if c[0]==1 or c[0] ==2 or c[0] ==4:
-      if [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] not in pp and [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] not in cell2: cell2.append( [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] )
-     if c[0] == 1:
-      if [c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] not in pp and [c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] not in cell2: cell2.append([c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] )
-     if c[0] == 3:
-      if [c[0]+1,c[1],c[2]] not in pp and [c[0]+1,c[1],c[2]] not in cell2: cell2.append( [c[0]+1,c[1],c[2]])
-     if c[0] == 4:
-      if [c[0]-1,c[1],c[2]] not in pp and [c[0]-1,c[1],c[2]] not in cell2: cell2.append( [c[0]-1,c[1],c[2]]   )
-      if [c[0],c[1]+1,c[2]] not in pp and [c[0],c[1]+1,c[2]] not in cell2: cell2.append([c[0],c[1]+1,c[2]])
-      if [c[0],c[1]-1,c[2]] not in pp and [c[0],c[1]-1,c[2]] not in cell2: cell2.append([c[0],c[1]-1,c[2]])
-      if [c[0],c[1],c[2]+1] not in pp and [c[0],c[1],c[2]+1] not in cell2: cell2.append([c[0],c[1],c[2]+1])
-      if [c[0],c[1],c[2]-1] not in pp and [c[0],c[1],c[2]-1] not in cell2: cell2.append([c[0],c[1],c[2]-1])
-      
-      
-    for neibp in cell1:
-     if (neibp in pp and neibp in sed):
-      new_ens.append(p+pp)
-      check.append(pp)
-      j=1
-      k+=1
-      break
-    for neibpp in cell2:
-     if(neibpp in p and neibpp in sed and j==0):
-      new_ens.append(p+pp)
-      check.append(pp)
-      k+=1
-      break
-     elif j==0: 
-      new_ens.append(pp)
-      check.append(pp)
-      break  
-  if k==0 and p not in new_ens:
-   new_ens.append(p)
-    
- return new_ens
-
+#####################
 
 
 def Iter_2(my_ens,sed):
@@ -370,52 +292,46 @@ def Iter_2(my_ens,sed):
     cell1=[]
     for c in p:
      #print([c[0]+1,2*c[1]+1,2*c[2]+1] not in p and [c[0]+1,2*c[1]+1,2*c[2]+1] not in cell1)                                                                                                               
-     if c[0] == 0:
-      if [c[0]+1,2*c[1]+1,2*c[2]+1] not in p and [c[0]+1,2*c[1]+1,2*c[2]+1] not in cell1: cell1.append([c[0]+1,2*c[1]+1,2*c[2]+1])
-      if [c[0]+1,2*c[1],2*c[2]+1]   not in p and [c[0]+1,2*c[1],2*c[2]+1]   not in cell1: cell1.append([c[0]+1,2*c[1],2*c[2]+1])
-      if [c[0]+1,2*c[1]+1,2*c[2]]   not in p and [c[0]+1,2*c[1]+1,2*c[2]]   not in cell1: cell1.append([c[0]+1,2*c[1]+1,2*c[2]])
-      if [c[0]+1,2*c[1],2*c[2]]     not in p and [c[0]+1,2*c[1],2*c[2]]     not in cell1: cell1.append([c[0]+1,2*c[1],2*c[2]] )
-     if c[0]==5 or c[0] ==2 or c[0] ==3:
+
+     if c[0]==5 or c[0] ==1 or c[0] ==3:
       if [c[0]-1,2*c[1]+1,2*c[2]+1] not in p and [c[0]-1,2*c[1]+1,2*c[2]+1] not in cell1: cell1.append([c[0]-1,2*c[1]+1,2*c[2]+1])
       if [c[0]-1,2*c[1],2*c[2]+1]   not in p and [c[0]-1,2*c[1],2*c[2]+1]   not in cell1: cell1.append([c[0]-1,2*c[1],2*c[2]+1])
       if [c[0]-1,2*c[1]+1,2*c[2]]   not in p and [c[0]-1,2*c[1]+1,2*c[2]]   not in cell1: cell1.append([c[0]-1,2*c[1]+1,2*c[2]])
       if [c[0]-1,2*c[1],2*c[2]]     not in p and [c[0]-1,2*c[1],2*c[2]]     not in cell1: cell1.append([c[0]-1,2*c[1],2*c[2]])
-     if c[0]==1 or c[0] ==2 or c[0] ==4:
+
+     if c[0]==0  or c[0] ==2 or c[0] ==4:
       if [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] not in p and [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] not in cell1: cell1.append([c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] )
-     if c[0] == 1:
-      if [c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] not in p and [c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] not in cell1: cell1.append([c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] )
-     if c[0] == 3:
+
+     if c[0] == 3 or c[0]==1:
       if [c[0]+1,c[1],c[2]] not in p and [c[0]+1,c[1],c[2]] not in cell1: cell1.append([c[0]+1,c[1],c[2]])
-     if c[0] == 4:
+
+     if c[0] == 4 or c[0]==2:
       if [c[0]-1,c[1],c[2]] not in p and [c[0]-1,c[1],c[2]] not in cell1: cell1.append([c[0]-1,c[1],c[2]])
-      if [c[0],c[1]+1,c[2]] not in p and [c[0],c[1]+1,c[2]] not in cell1: cell1.append([c[0],c[1]+1,c[2]])
-      if [c[0],c[1]-1,c[2]] not in p and [c[0],c[1]-1,c[2]] not in cell1: cell1.append([c[0],c[1]-1,c[2]])
-      if [c[0],c[1],c[2]+1] not in p and [c[0],c[1],c[2]+1] not in cell1: cell1.append([c[0],c[1],c[2]+1])
-      if [c[0],c[1],c[2]-1] not in p and [c[0],c[1],c[2]-1] not in cell1: cell1.append([c[0],c[1],c[2]-1])
+
+     if [c[0],c[1]+1,c[2]] not in p and [c[0],c[1]+1,c[2]] not in cell1: cell1.append([c[0],c[1]+1,c[2]])
+     if [c[0],c[1]-1,c[2]] not in p and [c[0],c[1]-1,c[2]] not in cell1: cell1.append([c[0],c[1]-1,c[2]])
+     if [c[0],c[1],c[2]+1] not in p and [c[0],c[1],c[2]+1] not in cell1: cell1.append([c[0],c[1],c[2]+1])
+     if [c[0],c[1],c[2]-1] not in p and [c[0],c[1],c[2]-1] not in cell1: cell1.append([c[0],c[1],c[2]-1])
+
     cell2=[]
     for c in pp:
-     if c[0] == 0:
-      if [c[0]+1,2*c[1]+1,2*c[2]+1] not in pp and [c[0]+1,2*c[1]+1,2*c[2]+1] not in cell2: cell2.append([c[0]+1,2*c[1]+1,2*c[2]+1])
-      if [c[0]+1,2*c[1],2*c[2]+1]   not in pp and [c[0]+1,2*c[1],2*c[2]+1]   not in cell2: cell2.append( [c[0]+1,2*c[1],2*c[2]+1])
-      if [c[0]+1,2*c[1]+1,2*c[2]]   not in pp and [c[0]+1,2*c[1]+1,2*c[2]]   not in cell2: cell2.append( [c[0]+1,2*c[1]+1,2*c[2]])
-      if [c[0]+1,2*c[1],2*c[2]]     not in pp and [c[0]+1,2*c[1],2*c[2]]     not in cell2: cell2.append( [c[0]+1,2*c[1],2*c[2]]  )
-     if c[0]==5 or c[0] ==2 or c[0] ==3:
+     
+     if c[0]==5 or c[0] ==1 or c[0] ==3:
       if [c[0]-1,2*c[1]+1,2*c[2]+1] not in pp and [c[0]-1,2*c[1]+1,2*c[2]+1] not in cell2: cell2.append( [c[0]-1,2*c[1]+1,2*c[2]+1])
       if [c[0]-1,2*c[1],2*c[2]+1]   not in pp and [c[0]-1,2*c[1],2*c[2]+1]   not in cell2: cell2.append( [c[0]-1,2*c[1],2*c[2]+1])
       if [c[0]-1,2*c[1]+1,2*c[2]]   not in pp and [c[0]-1,2*c[1]+1,2*c[2]]   not in cell2: cell2.append( [c[0]-1,2*c[1]+1,2*c[2]])
       if [c[0]-1,2*c[1],2*c[2]]     not in pp and [c[0]-1,2*c[1],2*c[2]]     not in cell2: cell2.append( [c[0]-1,2*c[1],2*c[2]])
-     if c[0]==1 or c[0] ==2 or c[0] ==4:
+     if c[0]==0 or c[0] ==2 or c[0] ==4:
       if [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] not in pp and [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] not in cell2: cell2.append( [c[0]+1,int(c[1]/2//1),int(c[2]/2//1)] )
-     if c[0] == 1:
-      if [c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] not in pp and [c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] not in cell2: cell2.append([c[0]-1,int(c[1]/2//1),int(c[2]/2//1)] )
-     if c[0] == 3:
+     if c[0] == 3 or c[0]==1:
       if [c[0]+1,c[1],c[2]] not in pp and [c[0]+1,c[1],c[2]] not in cell2: cell2.append( [c[0]+1,c[1],c[2]])
-     if c[0] == 4:
+     if c[0] == 4 or c[0]==2:
       if [c[0]-1,c[1],c[2]] not in pp and [c[0]-1,c[1],c[2]] not in cell2: cell2.append( [c[0]-1,c[1],c[2]]   )
-      if [c[0],c[1]+1,c[2]] not in pp and [c[0],c[1]+1,c[2]] not in cell2: cell2.append([c[0],c[1]+1,c[2]])
-      if [c[0],c[1]-1,c[2]] not in pp and [c[0],c[1]-1,c[2]] not in cell2: cell2.append([c[0],c[1]-1,c[2]])
-      if [c[0],c[1],c[2]+1] not in pp and [c[0],c[1],c[2]+1] not in cell2: cell2.append([c[0],c[1],c[2]+1])
-      if [c[0],c[1],c[2]-1] not in pp and [c[0],c[1],c[2]-1] not in cell2: cell2.append([c[0],c[1],c[2]-1])
+
+     if [c[0],c[1]+1,c[2]] not in pp and [c[0],c[1]+1,c[2]] not in cell2: cell2.append([c[0],c[1]+1,c[2]])
+     if [c[0],c[1]-1,c[2]] not in pp and [c[0],c[1]-1,c[2]] not in cell2: cell2.append([c[0],c[1]-1,c[2]])
+     if [c[0],c[1],c[2]+1] not in pp and [c[0],c[1],c[2]+1] not in cell2: cell2.append([c[0],c[1],c[2]+1])
+     if [c[0],c[1],c[2]-1] not in pp and [c[0],c[1],c[2]-1] not in cell2: cell2.append([c[0],c[1],c[2]-1])
 
     for neibp in cell1:
      if (neibp in pp and neibp in sed):
@@ -433,7 +349,7 @@ def Iter_2(my_ens,sed):
  return new_ens
 
 
-
+###############################
 
 
 def SMERGE(my_ens):
@@ -452,7 +368,8 @@ def SMERGE(my_ens):
     new_ens.append(clus)
     
  return new_ens
-   
+
+#############################
 
 def MergeStep(my_ens):
  new_ens=[]
@@ -481,3 +398,6 @@ def MergeStep(my_ens):
    new_ens.append(p)
     
  return new_ens
+
+
+#################################
