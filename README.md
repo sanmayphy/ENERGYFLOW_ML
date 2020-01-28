@@ -25,6 +25,8 @@ from script 1. No need to re-run these if only the NN has changed.
 
 this is the Pflow prediction: /afs/cern.ch/work/f/fdibello/public/Outfile_2to5GeV_TotalEpred.h5
 
-3.   python Evaluate_TCPos.py .
+3.   python Evaluate_Allpy
 Edit the macro to get the correct inputs link.
-This is for evaluation.
+This is for evaluation. Add your new network to the list and this will output
+the  figure of merit used to quantify the performance. Feel free to add
+additional plots if you like.
