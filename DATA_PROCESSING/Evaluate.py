@@ -10,9 +10,10 @@ import math
 import Track
 
 
-Events = 6000
+Events = 5000
 
-f = h5py.File('/afs/cern.ch/work/s/sanmay/public/Outfile_CellInformation_HomDet_2to5GeV_FineGran128_V1.h5','r')
+f = h5py.File('/afs/cern.ch/work/s/sanmay/public/Outfile_CellInformation_HomDet_10to15GeV_FineGran128_V1.h5')
+#f = h5py.File('/afs/cern.ch/work/s/sanmay/public/Outfile_CellInformation_HomDet_2to5GeV_FineGran128_V1.h5','r')
 
 gT     = h5py.File('Outfile_2to5GeV_TotalTopo.h5','r')
 gEpred = h5py.File('Outfile_2to5GeV_TotalEpred.h5','r')
@@ -48,28 +49,31 @@ for ev in range(Events):
  total=[]
  TC = -1
 
+ for lay in range(6):
+     Etopo_t =gEpred["PflowTC"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
+     for X in range(layers[lay]):
+       for Y in range(layers[lay]):
+        if Etopo_t[X][Y] != 0: 
+         TC = Etopo_t[X][Y] 
+         break 
 
-
+# print "TC number found:",TC
 
  for lay in range(6):
-      Ch_Ev=f["RealRes_ChargedEnergy_Layer"+str(lay+1)][ev][0]
-      Neu_Ev=f["RealRes_NeutralEnergy_Layer"+str(lay+1)][ev][0]
-      Lay_Ev=f["RealRes_TotalEnergy_Layer"+str(lay+1)][ev][0]
-      #Etopo_Ev =gEpred["PflowTC"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
-      Etopo_Ev =gEpred["PflowTC"+str(lay+1)][ev][0]
+      Ch_Ev=f["RealRes_ChargedEnergy_Layer"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
+      Neu_Ev=f["RealRes_NeutralEnergy_Layer"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
+      Lay_Ev=f["RealRes_TotalEnergy_Layer"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
+      Etopo_Ev =gEpred["PflowTC"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
       Topo_Ev =gT["TopoClusters"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
       Epred_Ev =gEpred["PflowPred"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
       Epred_tot1 =gEpred["PflowPredTot"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
       Epred_LFI =gEpred["PflowLFI"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
-      Noise_Ev=f["RealRes_Noise_Layer"+str(lay+1)][ev][0]
-      #Ch_Ev = Ch_Ev + Noise_Ev
-      #Lay_Ev = Lay_Ev - Noise_Ev
+      Noise_Ev=f["RealRes_Noise_Layer"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
+       
       for X in range(layers[lay]):
         for Y in range(layers[lay]):
-         #this needs to be improved - changed to give which TC correpsonds to which
-#         if Etopo_Ev[X][Y] != 0:
-#           TC = Etopo_Ev[X][Y]
-         if   Etopo_Ev[X][Y]!= 0:
+         if   Topo_Ev[X][Y] == TC and TC != 0:
+ #          print Topo_Ev[X][Y], Etopo_Ev[X][Y], Ch_Ev[X][Y], Epred_Ev[X][Y]
            pred = Epred_tot1[X][Y]
 #           if Topo_Ev[X][Y]!=Etopo_Ev[X][Y]: print "here:", Etopo_Ev[X][Y],Topo_Ev[X][Y],X,Y,lay
            #print Etopo_Ev[X][Y], Topo_Ev[X][Y]
@@ -82,8 +86,8 @@ for ev in range(Events):
            Ech = Ch_Ev[X][Y] + Ech
  if Ech!=0: h_Epred_prof_tot.Fill(ptr,lf,Ech/ptr) 
  Epred_tot = ptr*hProf_t.GetBinContent(hProf_t.GetXaxis().FindBin(ptr),hProf_t.GetYaxis().FindBin(lf))
-# print Epred_tot, Ech, EPflow,pred
- if  Ech!=0 and Epred_tot!= 0:
+# print Epred_tot, Ech, EPflow, Ech/ptr
+ if  Ech!=0 and Epred_tot!= 0 and EPflow!= 0 and Etot != 0 and Eneutral != 0 and int(EPflow) != int(Etot):
  #if Eneutral != 0 and Ech!=0 and TC != 0:
    h_Energy.Fill( Ech  ) 
    h_Eneutral.Fill( Eneutral  ) 
