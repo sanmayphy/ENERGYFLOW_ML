@@ -70,25 +70,39 @@ def Assign_Epred(TotalPred):
     out_image4 = np.zeros( [64,64] )
     out_image5 = np.zeros( [64,64] )
     out_image6 = np.zeros( [64,64] )
+    out_image1TC = np.zeros( [64,64] )
+    out_image2TC = np.zeros( [64,64] )
+    out_image3TC = np.zeros( [64,64] )
+    out_image4TC = np.zeros( [64,64] )
+    out_image5TC = np.zeros( [64,64] )
+    out_image6TC = np.zeros( [64,64] )
 
 
     for c in TotalPred:
      if c[0] == 0:
       out_image1[c[1],c[2]] = c[3] 
+      out_image1TC[c[1],c[2]] = c[4] 
      if c[0] == 1:
       out_image2[c[1],c[2]] = c[3] 
+      out_image2TC[c[1],c[2]] = c[4] 
      if c[0] == 2:
       out_image3[c[1],c[2]] = c[3] 
+      out_image3TC[c[1],c[2]] = c[4] 
      if c[0] == 3:
       out_image4[c[1],c[2]] = c[3] 
+      out_image4TC[c[1],c[2]] = c[4] 
      if c[0] == 4:
       out_image5[c[1],c[2]] = c[3] 
+      out_image5TC[c[1],c[2]] = c[4] 
      if c[0] == 5:
       out_image6[c[1],c[2]] = c[3]  
+      out_image6TC[c[1],c[2]] = c[4] 
+#     print  out_image2[c[1],c[2]], out_image2TC[c[1],c[2]] 
 
 
     out_imagef = [out_image1,out_image2,out_image3,out_image4,out_image5,out_image6]
-    return out_imagef
+    out_imagefTC = [out_image1TC,out_image2TC,out_image3TC,out_image4TC,out_image5TC,out_image6TC]
+    return out_imagef,out_imagefTC
 
 def Assign_TC(TotalPred,TC,bo):
 
