@@ -11,25 +11,37 @@ import Track
 from operator import itemgetter
 
 h_Pflow =  ROOT.TH1D("h_Pflow","h_Pflow",50,-1,1)
-f = h5py.File('/afs/cern.ch/work/s/sanmay/public/Outfile_CellInformation_HomDet_2to5GeV_FineGran128_V1.h5','r')
+f = h5py.File('/afs/cern.ch/work/s/sanmay/public/Outfile_CellInformation_HomDet_5to10GeV_FineGran128_V2.h5')
+#f = h5py.File('/afs/cern.ch/work/s/sanmay/public/Outfile_CellInformation_HomDet_2to5GeV_FineGran128_V1.h5','r')
 
 #gT = h5py.File('/afs/cern.ch/user/l/losanti/public/Outfile_2to5GeV_ChargedTopo.h5','r')
+#gT = h5py.File('Outfile_10to15GeV_ChargedTopo.h5','r')
 gT = h5py.File('Outfile_2to5GeV_TotalTopo.h5','r')
 #gT = h5py.File('Outfile_2to5GeV_ChargedTopo.h5','r')
 
 Events = 6000
 
 histo_fpred = []
-h_Epred_prof_tot= ROOT.TProfile2D("h_Epred_prof","h_Epred_prof",50,1.5e3,5.5e3,6,0,6) 
+h_Epred_prof_tot= ROOT.TProfile2D("h_Epred_prof","h_Epred_prof",130,1.5e3,15.5e3,6,0,6) 
 for lfi in range(6):
  for l in range(6):
-  h_Epred_prof= ROOT.TProfile3D("h_Epred_prof"+str(l)+str(lfi),"h_Epred_prof"+str(l)+str(lfi),25,1.5e3,5.5e3,6,0,6,30,0,10) 
+  h_Epred_prof= ROOT.TProfile3D("h_Epred_prof"+str(l)+str(lfi),"h_Epred_prof"+str(l)+str(lfi),75,1.5e3,15.5e3,6,0,6,60,-10,10) 
   histo_fpred.append([h_Epred_prof])
 
 C1=f["Trk_Theta"]    
 C2=f["Trk_Phi"]
 C3=f["Trk_X_pos"]   
 C4=f["Trk_Y_pos"]
+
+ED_p_ED = []
+ED_pt_ED = []
+for lay in range(6):
+  print lay
+  h_p_ED =  ROOT.TProfile2D("h_p_ED"+str(lay),"h_p_ED"+str(lay),64,-32.5,31.5,64,-32.5,31.5)
+  ED_p_ED.append(h_p_ED)
+  h_pt_ED =  ROOT.TProfile2D("h_pt_ED"+str(lay),"h_pt_ED"+str(lay),64,-32.5,31.5,64,-32.5,31.5)
+  ED_pt_ED.append(h_pt_ED)
+
 
 layers=[64,32,32,16,16,8]
 f1 = ROOT.TFile.Open("fpred_new_final.root")
@@ -44,10 +56,12 @@ for ev in range(Events):
  Traj_Mark=Track.MakeTruthTrajectory(C1[ev], C2[ev], C3[ev], C4[ev]) 
  total=[]
  for lay in range(6):
+      Traj_Mark[lay][0]= Traj_Mark[lay][0] -1 
+      Traj_Mark[lay][1]= Traj_Mark[lay][1] -1 
 #      Lay_Ev=f["RealRes_ChargedEnergy_Layer"+str(lay+1)][ev][0]
       Lay_Ev=f["RealRes_TotalEnergy_Layer"+str(lay+1)][ev][0]
-      Noise_Ev=f["RealRes_Noise_Layer"+str(lay+1)][ev][0]
-#      Lay_Ev = Lay_Ev + Noise_Ev
+#      Noise_Ev=f["RealRes_Noise_Layer"+str(lay+1)][ev][0]
+      Lay_Ev = Lay_Ev + Noise_Ev
       Topo_Ev =gT["TopoClusters"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
       for X in range(layers[lay]):
         for Y in range(layers[lay]):
@@ -115,6 +129,7 @@ for ev in range(Events):
  if Energia_total != 0:h_Epred_prof_tot.Fill(ptr,LFI,Energia_total/ptr)
  for cell in total:
   if cell[4] != TC: continue
+  ED_pt_ED[cell[0]].Fill(cell[1]-Traj_Mark[cell[0]][0],cell[2]-Traj_Mark[cell[0]][1],cell[3])
   histo_fpred[6*LFI+cell[0]][0].Fill(ptr,LFI+0.1,cell[5]+0.1,cell[3]/ptr)
 #  print "LFI ",LFI, "lay = ",cell[0]
 #  print histo_fpred[6*LFI+cell[0]][0].GetName()
@@ -138,7 +153,8 @@ for ev in range(Events):
      layer_c.append(cell+[circle,cell[3]/ell,cell[3]])
     #print ell, circle,cell[0],cell[5] 
     total_en[circle][cell[0]] = total_en[circle][cell[0]]  + cell[3]
-    total_enA[circle][cell[0]] = total_enA[circle][cell[0]]  + cell[3]/ell
+    total_enA[circle][cell[0]] = total_enA[circle][cell[0]]  + (cell[3]/ell) * ePred
+    #total_enA[circle][cell[0]] = total_enA[circle][cell[0]]  + cell[3]/ell
     total_enP[circle][cell[0]] = total_enP[circle][cell[0]]  + ePred
     total_enC[circle][cell[0]] = total_enC[circle][cell[0]]  + 1
     break  
@@ -157,6 +173,7 @@ for ev in range(Events):
   #print totE, totEp, LFI,cly[6],cly[0]
  #now remove the topoclustering
  
+# decor.sort(reverse = False,key=lambda decor: decor[10])
  decor.sort(reverse = True,key=lambda decor: decor[10])
  Epr = 0
  app = -1
@@ -168,24 +185,35 @@ for ev in range(Events):
    Epr =  final[9]
    #Epr = Epr +  final[9]
    app = final[9] 
-   ePred = final[11]
+   ePred = final[9]
+   #ePred = final[11]
    Epred_sum = ePred + Epred_sum
+   celln = -1
    for fn in decor1:
+    celln = celln + 1
     if fn[0] == final[0] and fn[6] == final[6]: 
        
-      if Epred_sum <= Epred_tot: cell_tot.append([fn[0],fn[1],fn[2],ePred/final[12]])
+      if Epred_sum <= Epred_tot: 
+       cell_tot.append([fn[0],fn[1],fn[2],ePred/final[12],TC])
+       ED_p_ED[fn[0]].Fill(fn[1]-Traj_Mark[fn[0]][0],fn[2]-Traj_Mark[fn[0]][1],ePred/final[12])
+   #   if Epred_sum <= Epred_tot: cell_tot.append([fn[0],fn[1],fn[2], 0.000001])
       elif Epred_sum > Epred_tot:
-       cell_tot.append([fn[0],fn[1],fn[2], ((Epred_sum-Epred_tot))/final[12]])
+       #print final[12], Epred_sum/Epred_tot, "+++++++++" 
+       cell_tot.append([fn[0],fn[1],fn[2], ePred/final[12]* (Epred_tot/Epred_sum) ,TC])
+       ED_p_ED[fn[0]].Fill(fn[1]-Traj_Mark[fn[0]][0],fn[2]-Traj_Mark[fn[0]][1],ePred/final[12]* (Epred_tot/Epred_sum))
+       #cell_tot.append([fn[0],fn[1],fn[2], ((Epred_sum-Epred_tot))/final[12],TC])
    if Epred_sum >= Epred_tot: break
  rescale = 1
  if Epred_sum> 0: rescale = Epred_tot/Epred_sum
+# print Epred_sum, Epred_tot, Epred_tot/Epred_sum 
+      #print "minore **", Epred_sum, Epred_tot,rescale,ev,final[12],final[3]
  #if Epred_sum < Epred_tot:print "minore ", Epred_sum, Epred_tot,rescale
- if rescale > 1: print "minore **", Epred_sum, Epred_tot,rescale,ev
+ #if rescale > 1: print final 
  #need to rescale up the missing energy
  cell_tot_res = []
  for cll in cell_tot:
   if rescale <= 1: cell_tot_res.append(cll)
-  else: cell_tot_res.append([cll[0],cll[1],cll[2],cll[3]*rescale])
+  else: cell_tot_res.append([cll[0],cll[1],cll[2],cll[3]*rescale,TC])
 
   
 
@@ -195,12 +223,13 @@ for ev in range(Events):
  #print "*******results:", Epr,ePred,Epr - ePred 
  if ev%200 == 0:print ev
 # h = Track.Assign_Epred(total)
- h = Track.Assign_Epred(cell_tot)
+ h, h1 = Track.Assign_Epred(cell_tot)
  #h = Track.Assign_Epred(cell_tot_res)
  out_image.append(h)
 
- h1 = Track.Assign_TC(total,TC,True)
+# h1 = Track.Assign_TC(total,TC,True)
  out_image1.append(h1)
+
 
  h2 = Track.Assign_TC(total,Epred_tot,False)
  out_image2.append(h2)
@@ -229,6 +258,12 @@ print ("Exiting ... Bye!")
 fpred_new = ROOT.TFile("fpred_new.root","recreate")
 for h in histo_fpred:
  h[0].Write()
+ED_p_ED[0].Write()
+ED_p_ED[1].Write()
+ED_p_ED[2].Write()
+ED_pt_ED[0].Write()
+ED_pt_ED[1].Write()
+ED_pt_ED[2].Write()
 h_Epred_prof_tot.Write()
 h_Pflow.Write()
 fpred_new.Close()
