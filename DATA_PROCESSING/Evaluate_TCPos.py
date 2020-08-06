@@ -10,20 +10,19 @@ import math
 import Track
 
 
-Events = 1000
+Events = 5999
 
-f = h5py.File('/afs/cern.ch/work/s/sanmay/public/Outfile_CellInformation_HomDet_2to5GeV_FineGran128_V1.h5','r')
+f = h5py.File('/afs/cern.ch/work/s/sanmay/public/Outfile_CellInformation_HomDet_2to5GeV_FineGran128_V1.h5')
 fnn = h5py.File('/afs/cern.ch/work/s/sanmay/public/Outfile_MLPred_HomDet_2to5GeV_FineGran128_V1.h5','r')
 
-print f.keys()
 
-gT     = h5py.File('Outfile_2to5GeV_TotalTopo.h5','r')
-gTnn     = h5py.File('Outfile_2to5GeV_TotalTopo.h5','r')
+gT     = h5py.File('/eos/user/f/fdibello/Outfile_2to5GeV_TotalTopo.h5','r')
+gTnn     = h5py.File('/eos/user/f/fdibello/Outfile_2to5GeV_TotalTopo.h5','r')
 #gT     = h5py.File('Outfile_2to5GeV_ChargedTopo.h5','r')
-gEpred = h5py.File('Outfile_2to5GeV_TotalEpred.h5','r')
+gEpred = h5py.File('/afs/cern.ch/work/l/losanti/public/forFrancesco/Outfile_2to5GeV_TotalEpred_WS_V1.h5','r')
 
 #h_Epred_prof_tot= ROOT.TProfile2D("h_Epred_prof_tot","h_Epred_prof_tot",5000000,1.5e3,5.5e3,6,0,6) 
-h_Epred_prof_tot= ROOT.TProfile2D("h_Epred_prof_tot","h_Epred_prof_tot",50,1.5e3,5.5e3,6,0,6) 
+#h_Epred_prof_tot= ROOT.TProfile2D("h_Epred_prof_tot","h_Epred_prof_tot",50,1.5e3,5.5e3,6,0,6) 
 
 C1=f["Trk_Theta"]
 C2=f["Trk_Phi"]
@@ -51,10 +50,10 @@ ED_ch_Plot = []
 Diff_X = []
 Diff_Y = []
 for lay in range(6):
-  print lay
+  print(lay)
   h_n_dR =  ROOT.TH1D("h_n_dR"+str(lay),"h_n_dR"+str(lay),100,-5,80)
   dR_n_Plot.append(h_n_dR)
-  h_p_dR =  ROOT.TH1D("h_p_dR"+str(lay),"h_p_dR"+str(lay),100,-5,80)
+  h_p_dR =  ROOT.TH1D("h_p_dR"+str(lay),"h_p_dR"+str(lay),410,-1,40)
   dR_p_Plot.append(h_p_dR)
   h_t_dR =  ROOT.TH1D("h_t_dR"+str(lay),"h_t_dR"+str(lay),100,-5,80)
   dR_t_Plot.append(h_t_dR)
@@ -99,18 +98,13 @@ h_Eneutral =  ROOT.TH1D("h_Eneutral","h_Eneutral",200,-500,10000)
 
 f1 = ROOT.TFile.Open("Epred_outN.root")
 #f1 = ROOT.TFile.Open("fpred_new_final.root")
-hProf_t = f1.Get("h_Epred_prof_tot")
+#hProf_t = f1.Get("h_Epred_prof_tot")
 layers=[64,32,32,16,16,8]
 out_image = []
 #for ev in range(4,5):
 # print ev
 for ev in range(Events):
- if ev%200 == 0:print ev
- EPflow = 0
- Etot = 0
- Eneutral = 0
- Ech = 0
- Enn = 0
+ if ev%200 == 0:print(ev)
  En=f["Smeared_Track_Energy"][ev]
  ptr=math.sqrt(En*En-139.57018*139.57018)
  Traj_Mark=Track.MakeTruthTrajectory(C1[ev], C2[ev], C3[ev], C4[ev])
@@ -142,7 +136,6 @@ for ev in range(Events):
       Neu_Ev=f["RealRes_NeutralEnergy_Layer"+str(lay+1)][ev][0]
       Lay_Ev=f["RealRes_TotalEnergy_Layer"+str(lay+1)][ev][0]
       ENN_Ev=fnn["RealRes_NeutralEnergyPred_Layer"+str(lay+1)][ev][0]
-      #Etopo_Ev =gEpred["PflowTC"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
       Etopo_Ev =gEpred["PflowTC"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
       Topo_Ev =gT["TopoClusters"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
       TopoNN_Ev =gTnn["TopoClusters"+str(lay+1)][ev][0][:layers[lay],:layers[lay]]
@@ -161,22 +154,26 @@ for ev in range(Events):
       yAn = 0
       xAt = 0
       yAt = 0
+      EPflow = 0
+      Etot = 0
+      Eneutral = 0
+      Ech = 0
+      Enn = 0
       
       for X in range(layers[lay]):
         for Y in range(layers[lay]):
          cut = False
          if (Ch_Ev[X][Y]==0. and Neu_Ev[X][Y]>=0)  and   (ENN_Ev[X][Y] <0.5*Neu_Ev[X][Y] and ENN_Ev[X][Y]>0.5 and Neu_Ev[X][Y]>150.): cut = True
 
-         if cut==False: continue
+      #   if cut==False: continue
 
- 
-         #Truth
-         Eneutral = Neu_Ev[X][Y] + Eneutral
-         xAt = X* Neu_Ev[X][Y] + xAt
-         yAt = Y* Neu_Ev[X][Y] + yAt
-         ED_t_Plot[lay].Fill(X-Traj_Mark[lay][0],Y-Traj_Mark[lay][1],Neu_Ev[X][Y])
-         ED_tot_not_Plot[lay].Fill(X-Traj_Mark[lay][0],Y-Traj_Mark[lay][1],Lay_Ev[X][Y])
-         if    Topo_Ev[X][Y] == TC:
+         if Etopo_Ev[X][Y] == TC:
+           #Truth
+           Eneutral = Neu_Ev[X][Y] + Eneutral
+           xAt = X* Neu_Ev[X][Y] + xAt
+           yAt = Y* Neu_Ev[X][Y] + yAt
+           ED_t_Plot[lay].Fill(X-Traj_Mark[lay][0],Y-Traj_Mark[lay][1],Neu_Ev[X][Y])
+           ED_tot_not_Plot[lay].Fill(X-Traj_Mark[lay][0],Y-Traj_Mark[lay][1],Lay_Ev[X][Y])
   #         if (Neu_Ev[X][Y]+Ch_Ev[X][Y])!=0: print Neu_Ev[X][Y]/(Neu_Ev[X][Y]+Ch_Ev[X][Y]), Neu_Ev[X][Y], ENN_Ev[X][Y]
            if Neu_Ev[X][Y] > 0 and Neu_Ev[X][Y]/(Ch_Ev[X][Y]+Neu_Ev[X][Y]) >0.9: ED_fraction_Plot[lay].Fill(X-Traj_Mark[lay][0],Y-Traj_Mark[lay][1], (ENN_Ev[X][Y]-Neu_Ev[X][Y])/Neu_Ev[X][Y])
            if Neu_Ev[X][Y] > 0 and Neu_Ev[X][Y]/(Ch_Ev[X][Y]+Neu_Ev[X][Y]) <0.15: ED_fraction_Plot1[lay].Fill(X-Traj_Mark[lay][0],Y-Traj_Mark[lay][1], (ENN_Ev[X][Y]-Neu_Ev[X][Y])/Neu_Ev[X][Y])
@@ -211,7 +208,7 @@ for ev in range(Events):
 
 
       if Etot!= 0:h_fraction.Fill(Eneutral/Etot) 
-      if EPflow == 0 or Eneutral == 0 or Enn == 0: continue
+      if EPflow == 0:  continue
      
       xAp = xAp / (Etot-EPflow)
       xAt = xAt / Eneutral
@@ -241,7 +238,7 @@ for ev in range(Events):
 
 
 
-f_o=ROOT.TFile("Epred_out_Position.root","recreate") 
+f_o=ROOT.TFile("Epred_out_Position_Pflow.root","recreate") 
 for ly in range(6):
  dR_p_Plot[ly].Write()
  dR_n_Plot[ly].Write()
