@@ -30,3 +30,6 @@ Edit the macro to get the correct inputs link.
 This is for evaluation. Add your new network to the list and this will output
 the  figure of merit used to quantify the performance. Feel free to add
 additional plots if you like.
+
+* PUBLIC DATASET
+A part of the dataset for PFlow and Superresolution is available through : https://zenodo.org/record/4483330#.YBaxYHczZBw
